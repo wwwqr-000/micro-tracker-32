@@ -9,8 +9,8 @@ import espnow
 import time
 from ucryptolib import aes
 
-key = b"bmarfanCkasb6b6c740b1c60K1c5445a"
-iv = b"secret-iv-123458"
+key = b"bmarfanCkasb6b6c740b1c60K1c5445f"
+iv = b"secret-iv-123456"
 MODE_CBC = 2
 channel = 1
 msg = "Im here!"
