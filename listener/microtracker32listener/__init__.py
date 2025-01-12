@@ -3,7 +3,6 @@ __author__ = "wwwqr"
 __desc__ = "A esp32 project that uses the esp32 now protocol to find his friends"
 __version__ = "0.0.1"
 
-import uos
 import network
 import espnow
 import json
@@ -37,6 +36,12 @@ def decrypt(str):
     cipher = aes(key, MODE_CBC, iv)
     return cipher.decrypt(str)
 
+def quickBeep(delay):
+    beep.on()
+    sleep(0.02)
+    beep.off()
+    sleep(delay)
+
 sta = network.WLAN(network.STA_IF)
 sta.active(True)
 e = espnow.ESPNow()
@@ -62,19 +67,23 @@ while True:
         
     else: decreaseBtnCooldown = False
     
-    if (increaseBtn.value() == 0 and isInSelectChannelMenu):
+    if (increaseBtn.value() == 1 and isInSelectChannelMenu):
         if (not increaseBtnCooldown and (channel + 1) <= 100): channel += 1
         increaseBtnCooldown = True
         
     else: increaseBtnCooldown = False
         
-    #if (increaseBtn.value() == 0 and)
-    #
+    if (isInSelectChannelMenu):
+        screen.cls()
+        screen.drawTxt("Select a channel", 0, 0)
+        screen.drawTxt("Channel: " + str(channel), 0, 10)
+        screen.refresh()
+        continue
+    
     screen.cls()
-    screen.drawTxt("Select a channel", 0, 0)
+    screen.drawTxt("Listening...", 0, 0)
     screen.drawTxt("Channel: " + str(channel), 0, 10)
-    screen.refresh()
-    continue
+    
     host, msg = e.recv()
     if (not msg): continue
     try: msg = decrypt(msg)
@@ -82,9 +91,13 @@ while True:
     msg = msg.strip()
     try: packet = json.loads(msg)
     except Exception: continue
-    if (packet['protocol']['name'] != "micro-tracker-32" or packet['protocol']['version'] != __version__): continue
-    screen.cls()
-    screen.drawTxt("(Msg line under)", 0, 10)
-    screen.drawTxt(str(packet['payload']['msg']), 0, 20)
+    if (packet['protocol']['name'] != "micro-tracker-32" or packet['protocol']['version'] != __version__ or packet['payload']['channel'] != channel): continue
+    screen.drawTxt("(Msg line under)", 0, 20)
+    screen.drawTxt(str(packet['payload']['msg']), 0, 30)
+    strength = list(e.peers_table.values())[0][0]
+    strength += (-strength * 2)
+    screen.drawTxt("Signal: " + str(strength), 0, 50)
+    quickBeep(strength / 1000)
     screen.refresh()
+
 

@@ -3,10 +3,8 @@ __author__ = "wwwqr"
 __desc__ = "A esp32 project that uses the esp32 now protocol to find his friends"
 __version__ = "0.0.1"
 
-import uos
 import network
 import espnow
-import time
 from ucryptolib import aes
 
 key = b"bmarfanCkasb6b6c740b1c60K1c5445f"
